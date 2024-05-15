@@ -91,3 +91,20 @@ async () => {
 }
 ```
 When using HTML elements, ensure they are properly formatted within the return statement.
+
+## Manipulating Elements
+
+You can manipulate HTML elements within your JavaScript code. For example:
+
+```jsx
+const img = <img id="abc"/>
+img.src = "/image.png"
+img.style.width = "120px"
+img.style.height = "200px"
+```
+
+And you can get element properties too.
+```jsx
+const page = <body> <h1 class="a">Hi there!</h1> </body>
+console.log(page.querySelector('.a').textContent) //"Hi there!"
+```
