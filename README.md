@@ -1,6 +1,7 @@
 
 
-![Opeact](https://raw.githubusercontent.com/gabbdev/opeact/main/logoc.png)
+![Opeact](https://raw.githubusercontent.com/gabbdev/opeact/main/logoc.png#gh-dark-mode-only)
+![Opeact](https://raw.githubusercontent.com/gabbdev/opeact/main/logob.png#gh-light-mode-only)
 Opeact is a simple Node.js library for embedding HTML in JS, eliminating the need for external dependencies.
 
 ## Dependencies
@@ -9,7 +10,7 @@ Opeact relies on two main dependencies:
 
 [Express](https://www.npmjs.com/package/express)
 [JSDOM](https://www.npmjs.com/package/jsdom)
-
+#
 **Note:** You need to install both dependencies manually.
 These dependencies are required for the proper functioning of Opeact and should be installed separately using npm.
 
