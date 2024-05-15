@@ -10,6 +10,9 @@ Opeact relies on two main dependencies:
 [Express](https://www.npmjs.com/package/express)
 [JSDOM](https://www.npmjs.com/package/jsdom)
 
+**Note:** You need to install both dependencies manually.
+These dependencies are required for the proper functioning of Opeact and should be installed separately using npm.
+
 ## Usage
 ```jsx
 const act = require("opeact/opeact");
