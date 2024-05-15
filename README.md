@@ -5,7 +5,7 @@ Opeact is a simple Node.js library for embedding HTML in JS, eliminating the nee
 
 ## Usage
 ```jsx
-const act = require("opeact");
+const act = require("opeact/opeact");
 const server = act.createServer();
 
 // Define routes
