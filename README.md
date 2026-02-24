@@ -8,6 +8,12 @@
 
 Opeact is a simple Node.js library for embedding HTML in JS, eliminating the need for external dependencies.
 
+## Installation
+
+```bash
+$ npm install gabbdev/opeact
+```
+
 ## Dependencies
 
 Opeact relies on two main dependencies:
