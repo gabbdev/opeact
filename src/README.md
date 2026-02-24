@@ -14,13 +14,10 @@ Opeact relies on two main dependencies:
 
 [Express](https://www.npmjs.com/package/express)
 [JSDOM](https://www.npmjs.com/package/jsdom)
-#
-**Note:** You need to install both dependencies manually.
-These dependencies are required for the proper functioning of Opeact and should be installed separately using npm.
 
 ## Usage
 ```jsx
-const act = require("opeact/opeact");
+import act from "opeact"
 const server = act.createServer();
 
 // Define routes
@@ -75,7 +72,6 @@ async () => {
 ```
 
 When defining routes with external files (e.g., `home.js`), the JavaScript code must be wrapped within either an arrow function without parameters or an asynchronous arrow function. It's important to note that no code should exist outside of this function within the file.
-
 
 ## Sending Responses
 To send responses back to the user, you can use the following patterns:
