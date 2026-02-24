@@ -1,7 +1,11 @@
 
 
-![Opeact](https://raw.githubusercontent.com/gabbdev/opeact/main/logoc.png#gh-dark-mode-only)
-![Opeact](https://raw.githubusercontent.com/gabbdev/opeact/main/logob.png#gh-light-mode-only)
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/gabbdev/opeact/main/logoc.png">
+  <source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/gabbdev/opeact/main/logob.png">
+  <img alt="Logo da Opeact" src="https://raw.githubusercontent.com/gabbdev/opeact/main/logob.png">
+</picture>
+
 Opeact is a simple Node.js library for embedding HTML in JS, eliminating the need for external dependencies.
 
 ## Dependencies
