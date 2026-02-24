@@ -9,7 +9,7 @@ import Path, { parse } from 'path'
 import mimetypes from './mimetypes.json' with { type: 'json' }
 import { createServer } from 'http'
 import vm from 'vm'
-import opeactDiscord from './opeact_discord'
+import opeactDiscord from './opeact_discord.js'
 import opeactSession from './opeact_session'
 
 const app = express()
