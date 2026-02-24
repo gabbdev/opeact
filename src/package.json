@@ -1,0 +1,26 @@
+{
+  "name": "opeact",
+  "version": "1.0.1",
+  "description": "A simple Node.js library for embedding HTML in JavaScript without external dependencies.",
+  "keywords": [
+    "html",
+    "js",
+    "jsx"
+  ],
+  "homepage": "https://github.com/gabbdev/opeact#readme",
+  "bugs": {
+    "url": "https://github.com/gabbdev/opeact/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/gabbdev/opeact.git"
+  },
+  "license": "MIT",
+  "author": "gabbdev",
+  "type": "commonjs",
+  "main": "index.js",
+  "dependencies": {
+    "express": "^5.2.1",
+    "jsdom": "^28.1.0"
+  }
+}

@@ -9,6 +9,8 @@ import Path, { parse } from 'path'
 import mimetypes from './mimetypes.json' with { type: 'json' }
 import { createServer } from 'http'
 import vm from 'vm'
+import opeactDiscord from './opeact_discord'
+import opeactSession from './opeact_session'
 
 const app = express()
 
@@ -29,6 +31,8 @@ const t = {
     put: (app.put).bind(app),
     delete: (app.delete).bind(app),
     listen: (app.listen).bind(app),
+    opeactDiscord,
+    opeactSession,
     createServer () {
         const httpServer = createServer(app)
         return httpServer
@@ -267,18 +271,3 @@ for (const method of ['all', 'delete', 'get', 'head', 'patch', 'post', 'put', 'o
 }
 
 export default t
-
-/*            eval(`
-            (async ()=> {
-                try {
-                    let __ = await (${parseHTML(r(src))})(req,res,...toExport)
-                    if (!__) return
-                    if (String(__).includes('HTML') && String(__).includes('Element')) return res.type('text/html').send("<!DOCTYPE html>" + __.outerHTML)
-                    if (String(__) == '[object Document]') return res.type('text/html').send("<!DOCTYPE html>" + __.documentElement.outerHTML)
-                    if (__.innerHTML) return res.type('text/html').send("<!DOCTYPE html>" + __.innerHTML)
-                    res.send(__)
-                } catch (_) {
-                    console.error(_)
-                }
-            })()
-            `)*/
