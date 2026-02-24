@@ -1,1 +1,0 @@
-import act from './src/index'

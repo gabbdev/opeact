@@ -23,7 +23,7 @@ Opeact relies on two main dependencies:
 
 ## Usage
 ```jsx
-import act from "opeact"
+import act from "opeact.js"
 const server = act.createServer();
 
 // Define routes
