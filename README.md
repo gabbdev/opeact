@@ -24,7 +24,6 @@ Opeact relies on two main dependencies:
 ## Usage
 ```jsx
 import act from "opeact.js"
-const server = act.createServer();
 
 // Define routes
 act.get("/home", "home.js"); // Reads home.js when accessing /home
@@ -34,7 +33,7 @@ act.get("/ping", (req, res) => {
 }); // you can use express function directly.
 
 // Start server
-server.listen(80);
+act.start(80);
 ```
 
 ## Example home.js
