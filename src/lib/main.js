@@ -5,12 +5,12 @@
 import express from 'express'
 import { JSDOM } from 'jsdom'
 import fs from 'fs'
-import Path, { parse } from 'path'
+import Path from 'path'
 import mimetypes from './mimetypes.json' with { type: 'json' }
 import { createServer } from 'http'
 import vm from 'vm'
 import opeactDiscord from './opeact_discord.js'
-import opeactSession from './opeact_session'
+import opeactSession from './opeact_session.js'
 
 const app = express()
 
