@@ -18,7 +18,7 @@
   "license": "MIT",
   "author": "gabbdev",
   "type": "module",
-  "main": "lib/main.js",
+  "main": "src/main.js",
   "dependencies": {
     "cookie-session": "^2.1.1",
     "express": "^5.2.1",
