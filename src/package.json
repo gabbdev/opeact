@@ -1,6 +1,6 @@
 {
-  "name": "opeact",
-  "version": "1.0.9",
+  "name": "opeact.js",
+  "version": "1.0.0",
   "description": "A simple Node.js library for embedding HTML in JavaScript without external dependencies.",
   "keywords": [
     "html",

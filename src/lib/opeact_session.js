@@ -1,5 +1,5 @@
-const fs = require('fs')
-const crypto = require('crypto')
+import fs from "fs"
+import crypto from "crypto"
 
 const genKey = (length) => {
     const chrs = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'
@@ -14,7 +14,7 @@ const genSession = () => {
     return fs.readFileSync('opeact_session.key','utf8').split(',')
 }
 
-module.exports = (app) => {
+export default (app) => {
     if (!app.csa) {
         app.use(require('cookie-session')({
             name: 'session',
