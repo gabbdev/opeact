@@ -1,13 +1,12 @@
 const fs = require('fs')
+const crypto = require('crypto')
 
 const genKey = (length) => {
-    let result = ''
-    let chrs = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
-    chrs += chrs.toLocaleLowerCase() + '0123456789'
-    for (let i = 0; i < length; i ++) {
-        result += chrs.charAt(Math.floor(Math.random() * chrs.length))
-    }
-    return result
+    const chrs = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'
+    const array = new Uint8Array(length)
+    crypto.getRandomValues(array)
+
+    return Array.from(array, x => chrs[x % chrs.length]).join('')
 }
 
 const genSession = () => {
@@ -19,7 +18,8 @@ module.exports = (app) => {
     if (!app.csa) {
         app.use(require('cookie-session')({
             name: 'session',
-            keys: genSession()
+            keys: genSession(),
+            maxAge: 7 * 24 * 60 * 60 * 1000
         }))
         app.csa = true
     }
