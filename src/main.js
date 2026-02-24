@@ -95,7 +95,6 @@ function parseTemplate(text) {
 
     let output = text
 
-    // Cores (Foreground e Background)
     output = output.replace(/<cl:(#[0-9a-fA-F]{6})>/g, (match, hex) => {
         const [r, g, b] = hexToRgb(hex)
         return `\x1b[38;2;${r};${g};${b}m`
@@ -105,23 +104,17 @@ function parseTemplate(text) {
         return `\x1b[48;2;${r};${g};${b}m`
     })
 
-    // Negrito: <b> texto </b> ou **texto**
     output = output.replace(/<b>|<\*\*>/g, '\x1b[1m').replace(/<\/b>|<\/\*\*>/g, '\x1b[22m')
     
-    // Itálico: <i> texto </i> ou *texto*
     output = output.replace(/<i>|<\*>/g, '\x1b[3m').replace(/<\/i>|<\/\*>/g, '\x1b[23m')
     
-    // Sublinhado: <u> texto </u> ou __texto__
     output = output.replace(/<u>|<__>/g, '\x1b[4m').replace(/<\/u>|<\/__>/g, '\x1b[24m')
     
-    // Riscado: <s> texto </s> ou ~~texto~~
     output = output.replace(/<s>|<~~>/g, '\x1b[9m').replace(/<\/s>|<\/~~>/g, '\x1b[29m')
 
-    // Reset de Cores
     output = output.replace(/<\/cl>/g, '\x1b[39m') 
     output = output.replace(/<\/bg>/g, '\x1b[49m') 
     
-    // Reset Total (opcional, use <r> para limpar tudo)
     output = output.replace(/<r>/g, '\x1b[0m')
 
     return output
