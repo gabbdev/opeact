@@ -1,2 +1,2 @@
-// opeact 2.0
+// opeact 3.0
 module.exports = require('./opeact/main').default
