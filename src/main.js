@@ -1,6 +1,6 @@
-// Opeact Dev 3.0
+// Opeact Dev 3.1
 // By Gabb
-// Update: 05/02/26
+// Update: 25/02/26
 
 import express from 'express'
 import { JSDOM } from 'jsdom'
@@ -18,7 +18,7 @@ app.disable('x-powered-by')
 
 app.use(express.raw({
     type: '*/*',
-    limit: '30mb'
+    limit: '100mb'
 }))
 
 app.opeact_utils = {}
@@ -87,7 +87,7 @@ const parseHTML = (s) => {
     return sf
 }
 
-function parseTemplate(text) {
+function parseLog(text) {
     const hexToRgb = (hex) => {
         const bigint = parseInt(hex.slice(1), 16)
         return [(bigint >> 16) & 255, (bigint >> 8) & 255, bigint & 255]
@@ -122,11 +122,11 @@ function parseTemplate(text) {
 
 const debug = {
     log: (...args) => {
-        const parsedArgs = args.map(arg => typeof arg === 'string' ? parseTemplate(arg) : arg)
+        const parsedArgs = args.map(arg => typeof arg === 'string' ? parseLog(arg) : arg)
         console.log(...parsedArgs)
     },
     error: (...args) => {
-        const parsedArgs = args.map(arg => typeof arg === 'string' ? parseTemplate(arg) : arg)
+        const parsedArgs = args.map(arg => typeof arg === 'string' ? parseLog(arg) : arg)
         console.error(...parsedArgs)
     }
 }
