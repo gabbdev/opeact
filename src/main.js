@@ -1,6 +1,6 @@
-// Opeact Dev 3.1
+// Opeact Dev 3.2
 // By Gabb
-// Update: 25/02/26
+// Update: 04/03/26
 
 import express from 'express'
 import { JSDOM } from 'jsdom'
@@ -41,12 +41,12 @@ const t = {
         if (args[0] instanceof Server) {
             const args_ = args.slice(1)
             args[0].listen(...args_)
-            debug.log(`<bg:#c4e0f2><cl:#112633>Opeact</cl></bg> <cl:#00ff00>●</cl> Started on port ${args[0]}`)
+            debug.log(`<bg:#c4e0f2><cl:#112633>Opeact</cl></bg> <cl:#00ff00>●</cl> Started on ${args[0].address().port}`)
             return args[0]
         } else {
             const server = t.createServer()
             server.listen(...args)
-            debug.log(`<bg:#c4e0f2><cl:#112633>Opeact</cl></bg> <cl:#00ff00>●</cl> Started on port ${args[0]}`)
+            debug.log(`<bg:#c4e0f2><cl:#112633>Opeact</cl></bg> <cl:#00ff00>●</cl> Started on ${server.address().port}`)
             return server
         }
     },
