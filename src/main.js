@@ -7,7 +7,7 @@ import { JSDOM } from 'jsdom'
 import fs from 'fs'
 import Path from 'path'
 import mimetypes from './mimetypes.json' with { type: 'json' }
-import { createServer } from 'http'
+import { createServer, Server } from 'http'
 import vm from 'vm'
 import opeactDiscord from './opeact_discord.js'
 import opeactSession from './opeact_session.js'
@@ -38,10 +38,17 @@ const t = {
         return httpServer
     },
     start (...args) {
-        const server = t.createServer()
-        server.listen(...args)
-        debug.log(`<bg:#c4e0f2><cl:#112633>Opeact</cl></bg> <cl:#00ff00>●</cl> Started on port ${args[0]}`)
-        return server
+        if (args[0] instanceof Server) {
+            const args_ = args.slice(1)
+            args[0].listen(...args_)
+            debug.log(`<bg:#c4e0f2><cl:#112633>Opeact</cl></bg> <cl:#00ff00>●</cl> Started on port ${args[0]}`)
+            return args[0]
+        } else {
+            const server = t.createServer()
+            server.listen(...args)
+            debug.log(`<bg:#c4e0f2><cl:#112633>Opeact</cl></bg> <cl:#00ff00>●</cl> Started on port ${args[0]}`)
+            return server
+        }
     },
     static (path, url = '/__opeact/static') {
         debug.log(`<bg:#c4e0f2><cl:#112633>Opeact</cl></bg> <cl:#ffae00>●</cl> Static files served from ${path} at <bg:#545e57><cl:#e1f2e6> ${url} </cl></bg>`)
