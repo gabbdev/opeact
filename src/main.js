@@ -1,4 +1,4 @@
-// Opeact Dev 3.2
+// Opeact Dev 3.3
 // By Gabb
 // Update: 04/03/26
 
@@ -53,17 +53,31 @@ const t = {
     static (path, url = '/__opeact/static') {
         debug.log(`<bg:#c4e0f2><cl:#112633>Opeact</cl></bg> <cl:#ffae00>●</cl> Static files served from ${path} at <bg:#545e57><cl:#e1f2e6> ${url} </cl></bg>`)
 
+        const rootPath = Path.resolve(path)
         let routePath = (url.endsWith('/') ? url.substring(1) : url)
-        app.get(routePath + '/*file', (req,res) => {
 
+        app.get(routePath + '/*file', (req, res) => {
             const targetFile = req.params.file.join('/')
-            const fullPath = Path.join(path, targetFile)
+            const fullPath = Path.resolve(rootPath, targetFile)
 
-            fs.readFile(fullPath, (e,d) => {
-                if (e) return res.send('Not found')
-                let ext = Path.extname(targetFile)
-                res.setHeader('Content-Type', mimetypes[ext] || 'octet/stream')
-                res.send(d)
+            if (!fullPath.startsWith(rootPath)) {
+                return res.status(404).send('Not found.')
+            }
+
+            fs.stat(fullPath, (err, stats) => {
+                if (err || !stats.isFile()) {
+                    return res.status(404).send('Not found.')
+                }
+
+                let ext = Path.extname(fullPath);
+                res.setHeader('Content-Type', mimetypes[ext] || 'application/octet-stream')
+                
+                const stream = fs.createReadStream(fullPath)
+                stream.pipe(res)
+                
+                stream.on('error', () => {
+                    res.status(500).send('Internal Server Error.')
+                })
             })
         })
     },
