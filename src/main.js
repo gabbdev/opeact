@@ -17,11 +17,6 @@ const app = express()
 
 app.disable('x-powered-by')
 
-app.use(express.raw({
-    type: '*/*',
-    limit: '1mb'
-}))
-
 app.opeact_utils = {}
 
 const t = {
@@ -32,6 +27,7 @@ const t = {
     put: (app.put).bind(app),
     delete: (app.delete).bind(app),
     listen: (app.listen).bind(app),
+    use: (app.use).bind(app),
     opeactDiscord,
     opeactSession,
     createServer () {
@@ -51,7 +47,7 @@ const t = {
             return server
         }
     },
-    static (pathStr, url = '/__opeact/static') {
+    static (pathStr, url = '/__opeact/static', middleware) {
         debug.log(`<bg:#c4e0f2><cl:#112633>Opeact</cl></bg> <cl:#ffae00>●</cl> Static files served from ${pathStr} at <bg:#545e57><cl:#e1f2e6> ${url} </cl></bg>`)
 
         const rootPath = Path.resolve(pathStr)
@@ -66,6 +62,11 @@ const t = {
             
             if (!fullPath.startsWith(safeRoot) && fullPath !== rootPath) {
                 return res.status(403).send('Forbidden.')
+            }
+
+            if (middleware && typeof middleware === 'function') {
+                middleware(req, res, fullPath)
+                if (res.headersSent) return
             }
 
             fs.stat(fullPath, (err, stats) => {
@@ -229,11 +230,36 @@ const $__ = (s) => {
 }
 
 for (const method of ['all', 'delete', 'get', 'head', 'patch', 'post', 'put', 'options', 'search', 'trace', 'propfind', 'proppatch', 'mkcol', 'copy', 'move', 'lock', 'unlock']) {
-    t[method] = (name,src,...toExport) => {
-        if (!src || !name) return
+    t[method] = (name,src,options) => {
+
+        if (!src || !name) throw new Error('Method path and source are required.')
+
         if (typeof(src) === 'function') return app[method](name,src)
         if (typeof(src) === 'string' && src.endsWith('.html')) return app[method](name, async (req,res) => res.send(await r(src)))
         if (typeof(src) === 'string' && src.startsWith('http')) return app[method](name, (req,res)=> res.redirect(src))
+
+        const exports = options.exports || []
+        const bodyOptions = options.body
+
+        if (!(typeof exports === 'object' && Array.isArray(exports))) throw new Error('Exports must be an array.')
+
+        if (bodyOptions && typeof bodyOptions === 'object') {
+            const limit = bodyOptions.limit || "1mb"
+            const type = bodyOptions.type || "*/*"
+            const bodyAsJson = bodyOptions.json === true
+            if (bodyAsJson) {
+                app.use(name, express.json({
+                    type,
+                    limit
+                }))
+            } else {
+                app.use(name, express.raw({
+                    type,
+                    limit
+                }))
+            }
+        }
+
         app[method](name, async (req,res) => {
             const sandbox = {
                 parseHTML,
@@ -242,16 +268,19 @@ for (const method of ['all', 'delete', 'get', 'head', 'patch', 'post', 'put', 'o
                 req,
                 res,
                 $__,
-                toExport,
+                exports,
                 app,
                 t,
                 console
             }
+
             vm.createContext(sandbox)
+
             const pageScript = await r(src)
+
             const code = `
             (async ()=> {
-                let __ = await (${parseHTML(pageScript)})(req,res,...toExport)
+                let __ = await (${parseHTML(pageScript)})(req,res,...exports)
                 if (!__) return
                 if (String(__).includes('HTML') && String(__).includes('Element')) return res.type('text/html').send("<!DOCTYPE html>" + __.outerHTML)
                 if (String(__) == '[object Document]') return res.type('text/html').send("<!DOCTYPE html>" + __.documentElement.outerHTML)
@@ -260,6 +289,7 @@ for (const method of ['all', 'delete', 'get', 'head', 'patch', 'post', 'put', 'o
             })()
             `
             const result = vm.runInContext(code, sandbox)
+
             result.catch(e => {
                 const errorDetails = {
                     type: e.name,
