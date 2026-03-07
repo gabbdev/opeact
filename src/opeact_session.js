@@ -1,5 +1,6 @@
 import fs from "fs"
 import crypto from "crypto"
+import cookieSession from "cookie-session"
 
 const genKey = (length) => {
     const chrs = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'
@@ -16,7 +17,7 @@ const genSession = () => {
 
 export default (app) => {
     if (!app.csa) {
-        app.use(require('cookie-session')({
+        app.use(cookieSession({
             name: 'session',
             keys: genSession(),
             maxAge: 7 * 24 * 60 * 60 * 1000
