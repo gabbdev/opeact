@@ -1,10 +1,11 @@
-// Opeact Dev 3.3
+// Opeact Dev 4
 // By Gabb
-// Update: 04/03/26
+// Update: 07/03/26
 
 import express from 'express'
 import { JSDOM } from 'jsdom'
 import fs from 'fs'
+import { readFile } from 'node:fs/promises'
 import Path from 'path'
 import mimetypes from './mimetypes.json' with { type: 'json' }
 import { createServer, Server } from 'http'
@@ -18,7 +19,7 @@ app.disable('x-powered-by')
 
 app.use(express.raw({
     type: '*/*',
-    limit: '100mb'
+    limit: '1mb'
 }))
 
 app.opeact_utils = {}
@@ -50,18 +51,21 @@ const t = {
             return server
         }
     },
-    static (path, url = '/__opeact/static') {
-        debug.log(`<bg:#c4e0f2><cl:#112633>Opeact</cl></bg> <cl:#ffae00>●</cl> Static files served from ${path} at <bg:#545e57><cl:#e1f2e6> ${url} </cl></bg>`)
+    static (pathStr, url = '/__opeact/static') {
+        debug.log(`<bg:#c4e0f2><cl:#112633>Opeact</cl></bg> <cl:#ffae00>●</cl> Static files served from ${pathStr} at <bg:#545e57><cl:#e1f2e6> ${url} </cl></bg>`)
 
-        const rootPath = Path.resolve(path)
+        const rootPath = Path.resolve(pathStr)
         let routePath = (url.endsWith('/') ? url.substring(1) : url)
 
         app.get(routePath + '/*file', (req, res) => {
-            const targetFile = req.params.file.join('/')
+            const targetFile = Array.isArray(req.params.file) ? req.params.file.join('/') : req.params.file
+            
             const fullPath = Path.resolve(rootPath, targetFile)
 
-            if (!fullPath.startsWith(rootPath)) {
-                return res.status(404).send('Not found.')
+            const safeRoot = rootPath.endsWith(Path.sep) ? rootPath : rootPath + Path.sep;
+            
+            if (!fullPath.startsWith(safeRoot) && fullPath !== rootPath) {
+                return res.status(403).send('Forbidden.')
             }
 
             fs.stat(fullPath, (err, stats) => {
@@ -152,7 +156,7 @@ const debug = {
     }
 }
 
-const r = (f) => fs.readFileSync(f, 'utf8')
+const r = (f) => readFile(f, 'utf8')
 
 const scriptCache = {}
 
@@ -228,7 +232,7 @@ for (const method of ['all', 'delete', 'get', 'head', 'patch', 'post', 'put', 'o
     t[method] = (name,src,...toExport) => {
         if (!src || !name) return
         if (typeof(src) === 'function') return app[method](name,src)
-        if (typeof(src) === 'string' && src.endsWith('.html')) return app[method](name, (req,res) => res.send(r(src)))
+        if (typeof(src) === 'string' && src.endsWith('.html')) return app[method](name, async (req,res) => res.send(await r(src)))
         if (typeof(src) === 'string' && src.startsWith('http')) return app[method](name, (req,res)=> res.redirect(src))
         app[method](name, async (req,res) => {
             const sandbox = {
@@ -244,9 +248,10 @@ for (const method of ['all', 'delete', 'get', 'head', 'patch', 'post', 'put', 'o
                 console
             }
             vm.createContext(sandbox)
+            const pageScript = await r(src)
             const code = `
             (async ()=> {
-                let __ = await (${parseHTML(r(src))})(req,res,...toExport)
+                let __ = await (${parseHTML(pageScript)})(req,res,...toExport)
                 if (!__) return
                 if (String(__).includes('HTML') && String(__).includes('Element')) return res.type('text/html').send("<!DOCTYPE html>" + __.outerHTML)
                 if (String(__) == '[object Document]') return res.type('text/html').send("<!DOCTYPE html>" + __.documentElement.outerHTML)
