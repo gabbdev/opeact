@@ -230,7 +230,7 @@ const $__ = (s) => {
 }
 
 for (const method of ['all', 'delete', 'get', 'head', 'patch', 'post', 'put', 'options', 'search', 'trace', 'propfind', 'proppatch', 'mkcol', 'copy', 'move', 'lock', 'unlock']) {
-    t[method] = (name,src,options) => {
+    t[method] = (name, src, options = {}) => {
 
         if (!src || !name) throw new Error('Method path and source are required.')
 
