@@ -10,10 +10,12 @@ import Path from 'path'
 import mimetypes from './mimetypes.json' with { type: 'json' }
 import { createServer, Server } from 'http'
 import vm from 'vm'
+import { createRequire } from 'module'
 import opeactDiscord from './opeact_discord.js'
 import opeactSession from './opeact_session.js'
 
 const app = express()
+const require = createRequire(import.meta.url)
 
 app.disable('x-powered-by')
 
@@ -21,7 +23,7 @@ app.opeact_utils = {}
 
 const t = {
     app,
-    enableObfuscation: false,
+    exposeNode: false,
     get: (app.get).bind(app),
     post: (app.post).bind(app),
     put: (app.put).bind(app),
@@ -167,57 +169,18 @@ function hash(str) {
 
 const newDocument = (htmlString) => {
     let document = new JSDOM(htmlString).window.document
-    document.importHead = (...paths) => {for (const path of paths) document.head.outerHTML = r(path)}
-    document.importStyle = (...paths) => {for (const path of paths) document.head.append($__(`<style>${r(path)}</style>`))}
+    document.importHead = async (...paths) => {for (const path of paths) document.head.outerHTML = await r(path)}
+    document.importStyle = async (...paths) => {for (const path of paths) document.head.append($__(`<style>${await r(path)}</style>`))}
     document.importObject = (...objs) => {
         for (const obj of objs) {
             if (!document.importObjects) document.importObjects = []
             document.importObjects.push(obj)
         }
     }
-    document.importScript = (...paths) => {
+    document.importScript = async (...paths) => {
         for (const path of paths) {
-            if (t.enableObfuscation) {
-                const { obfuscate } = require('javascript-obfuscator')
-                let script = r(path)
-                let code = script
-                if (scriptCache[hash(path)] && scriptCache[hash(path)].hash === hash(script)) {
-                    code = scriptCache[hash(path)].content
-                } else {
-                    const obfuscated = obfuscate(script, {
-                        compact: true,
-                        controlFlowFlattening: true,
-                        controlFlowFlatteningThreshold: 1,
-                        deadCodeInjection: true,
-                        deadCodeInjectionThreshold: 1
-                    })
-                    code = obfuscated.getObfuscatedCode()
-                    scriptCache[hash(path)] = {content: code, hash: hash(script)}
-                    debug.log(`<bg:#c4e0f2><cl:#112633>Opeact</cl></bg> <cl:#2e70ff>●</cl> Script ${path} imported and obfuscated.`)
-                }
-
-                if (document.importObjects) {
-                    let importCode = `window.getOpeactObject = (name) => {
-                        for (const obj of (${JSON.stringify(document.importObjects)})) {
-                            if (obj.name === name) return obj.value
-                        }
-                    }`
-                    importCode = obfuscate(importCode, {compact: true}).getObfuscatedCode()
-                    code = importCode + '\n' + code
-                }
-                document.head.append($__(`<script type="text/javascript">${code}</script>`))
-            } else  {
-                let script = r(path)
-                if (document.importObjects) {
-                    let importCode = `window.getOpeactObject = (name) => {
-                        for (const obj of (${JSON.stringify(document.importObjects)})) {
-                            if (obj.name === name) return obj.value
-                        }
-                    }`
-                    script = importCode + '\n' + script
-                }
-                document.head.append($__(`<script type="text/javascript">${script}</script>`))
-            }
+            let script = await r(path)
+            document.head.append($__(`<script type="text/javascript">${script}</script>`))
         }
     }
     if (t.afterParseDocument) document = t.afterParseDocument(document)
@@ -248,15 +211,9 @@ for (const method of ['all', 'delete', 'get', 'head', 'patch', 'post', 'put', 'o
             const type = bodyOptions.type || "*/*"
             const bodyAsJson = bodyOptions.json === true
             if (bodyAsJson) {
-                app.use(name, express.json({
-                    type,
-                    limit
-                }))
+                app.use(name, express.json({ type, limit }))
             } else {
-                app.use(name, express.raw({
-                    type,
-                    limit
-                }))
+                app.use(name, express.raw({ type, limit }))
             }
         }
 
@@ -271,7 +228,17 @@ for (const method of ['all', 'delete', 'get', 'head', 'patch', 'post', 'put', 'o
                 exports,
                 app,
                 t,
-                console
+                console: null,
+                require: null,
+                process: null,
+                global: null
+            }
+
+            if (t.exposeNode) {
+                sandbox.console = console
+                sandbox.require = createRequire(import.meta.url)
+                sandbox.process = process
+                sandbox.global = global
             }
 
             vm.createContext(sandbox)
