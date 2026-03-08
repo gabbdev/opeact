@@ -161,28 +161,30 @@ const debug = {
 
 const r = (f) => readFile(f, 'utf8')
 
-const scriptCache = {}
-
-function hash(str) {
-    return require('crypto').createHash('sha256').update(str).digest('hex')
-}
-
 const newDocument = (htmlString) => {
     let document = new JSDOM(htmlString).window.document
-    document.importHead = async (...paths) => {for (const path of paths) document.head.outerHTML = await r(path)}
-    document.importStyle = async (...paths) => {for (const path of paths) document.head.append($__(`<style>${await r(path)}</style>`))}
+
+    document.importStyle = async (...paths) => {
+        for (const path of paths) {
+            const style = await r(path)
+            document.head.append($__(`<style>${style}</style>`))
+        }
+    }
+
     document.importObject = (...objs) => {
         for (const obj of objs) {
             if (!document.importObjects) document.importObjects = []
             document.importObjects.push(obj)
         }
     }
+
     document.importScript = async (...paths) => {
         for (const path of paths) {
-            let script = await r(path)
+            const script = await r(path)
             document.head.append($__(`<script type="text/javascript">${script}</script>`))
         }
     }
+
     if (t.afterParseDocument) document = t.afterParseDocument(document)
     return document
 }
