@@ -195,7 +195,7 @@ const $__ = (s) => {
 }
 
 for (const method of ['all', 'delete', 'get', 'head', 'patch', 'post', 'put', 'options', 'search', 'trace', 'propfind', 'proppatch', 'mkcol', 'copy', 'move', 'lock', 'unlock']) {
-    t[method] = (name, src, options = {}) => {
+    t[method] = (name, src, options = {exports: null, body: null}) => {
 
         if (!src || !name) throw new Error('Method path and source are required.')
 
@@ -220,6 +220,7 @@ for (const method of ['all', 'delete', 'get', 'head', 'patch', 'post', 'put', 'o
         }
 
         app[method](name, async (req,res) => {
+            const absoluteSrc = Path.resolve(src)
             const sandbox = {
                 parseHTML,
                 r,
@@ -233,12 +234,14 @@ for (const method of ['all', 'delete', 'get', 'head', 'patch', 'post', 'put', 'o
                 console: null,
                 require: null,
                 process: null,
-                global: null
+                global: null,
+                __filename: absoluteSrc,
+                __dirname: Path.dirname(absoluteSrc)
             }
 
             if (t.exposeNode) {
                 sandbox.console = console
-                sandbox.require = createRequire(import.meta.url)
+                sandbox.require = createRequire(absoluteSrc)
                 sandbox.process = process
                 sandbox.global = global
             }
@@ -251,6 +254,7 @@ for (const method of ['all', 'delete', 'get', 'head', 'patch', 'post', 'put', 'o
             (async ()=> {
                 let __ = await (${parseHTML(pageScript)})(req,res,...exports)
                 if (!__) return
+                if (res.headersSent) return
                 if (String(__).includes('HTML') && String(__).includes('Element')) return res.type('text/html').send("<!DOCTYPE html>" + __.outerHTML)
                 if (String(__) == '[object Document]') return res.type('text/html').send("<!DOCTYPE html>" + __.documentElement.outerHTML)
                 if (__.innerHTML) return res.type('text/html').send("<!DOCTYPE html>" + __.innerHTML)
